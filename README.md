@@ -1,117 +1,51 @@
-# 🍲 GlobalPlate AI
+# GlobalPlate AI
 
-GlobalPlate AI is an AI-powered international culinary assistant built using **Google Gemini**, **FastAPI**, and **Docker** as part of the **IBM Gen AI & Cloud Computing Internship Project**.
+GlobalPlate AI is an AI-powered international culinary assistant created for the IBM Gen AI & Cloud Computing internship project.
 
-It helps users explore authentic recipes from around the world with AI-generated cooking instructions, nutrition insights, and interactive features.
+## Features
 
----
+- Live Gemini-powered recipe generation
+- Streaming AI responses
+- Multi-turn conversation memory
+- Saved dish conversations in browser storage
+- Dynamic dish images using Pexels
+- Nutrition summary card
+- Ingredient checklist
+- Voice input where supported
+- Copy, download and print/PDF tools
+- Dark mode and responsive design
+- Docker-ready FastAPI deployment
+- Health and API information endpoints
 
-## 🚀 Features
+## Local setup
 
-- 🤖 AI-powered recipe generation using Google Gemini
-- 💬 Streaming AI responses
-- 🧠 Multi-turn conversation memory
-- 🍽️ Dynamic dish images using the Pexels API
-- 🥗 Nutrition summary card
-- ✅ Interactive ingredient checklist
-- 🎤 Voice input (browser supported)
-- 📄 Copy, Download & Print recipe
-- 🌙 Dark mode
-- 📱 Fully responsive UI
-- ☁️ Docker-ready FastAPI deployment
-- ❤️ Saved conversations using Local Storage
-
----
-
-## 🛠️ Tech Stack
-
-- Python
-- FastAPI
-- Google Gemini API
-- Pexels API
-- HTML
-- CSS
-- JavaScript
-- Docker
-
----
-
-## 📂 Project Structure
-
-```
-GLOBALPLATE-AI/
-│
-├── templates/
-│   └── index.html
-├── main.py
-├── requirements.txt
-├── Dockerfile
-├── README.md
-├── .env.example
-└── .gitignore
-```
-
----
-
-## ⚙️ Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/YOUR_USERNAME/GlobalPlate-AI.git
-cd GlobalPlate-AI
-```
-
-Install dependencies:
+1. Copy `.env.example` to `.env`.
+2. Add your Gemini and Pexels API keys.
+3. Install dependencies:
 
 ```bash
 py -m pip install -r requirements.txt
 ```
 
-Create a `.env` file from `.env.example` and add your API keys.
-
-Run the application:
+4. Run:
 
 ```bash
 py -m uvicorn main:app --reload
 ```
 
-Open:
+5. Open `http://127.0.0.1:8000`.
 
-```
-http://127.0.0.1:8000
-```
+## Useful endpoints
 
----
+- `/` — web application
+- `/health` — deployment health check
+- `/api/info` — public project information
+- `/docs` — FastAPI documentation
 
-## 📌 API Endpoints
+## Security
 
-| Endpoint | Description |
-|----------|-------------|
-| `/` | Web Application |
-| `/health` | Health Check |
-| `/api/info` | Project Information |
-| `/docs` | FastAPI Swagger UI |
+Never commit `.env` or API keys to GitHub.
 
----
+## Developer
 
-## 🔒 Security
-
-This repository **does not include API keys**.
-
-Create a local `.env` file containing:
-
-```
-GEMINI_API_KEY=YOUR_KEY
-PEXELS_API_KEY=YOUR_KEY
-```
-
-Never upload `.env` to GitHub.
-
----
-
-## 👨‍💻 Developer
-
-**Nirbhaysingh A. Chauhan**
-
-IBM Gen AI & Cloud Computing Internship Project
+Developed by **Nirbhaysingh A. Chauhan**.
