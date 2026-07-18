@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GlobalPlate // Cultural AI Recipe Guide</title>
-    <script src="https://tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-amber-50 min-h-screen flex flex-col font-sans text-slate-800">
 
@@ -74,18 +74,16 @@
                     const lines = chunk.split('\n');
                     
                     for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            try {
-                                const parsed = json.parse(line.slice(6));
-                                // Capitalized standard JSON fix for strict browser runtime compliance
-                                } catch(e) {
-                                try {
-                                    const parsedObj = JSON.parse(line.slice(6));
-                                    streamContainer.innerText += parsedObj.text;
-                                    recipeDisplay.scrollTop = recipeDisplay.scrollHeight;
-                                } catch(errInner) {}
-                            }
-                        }
+    if (line.startsWith('data: ')) {
+        try {
+            const parsedObj = JSON.parse(line.slice(6));
+            streamContainer.innerText += parsedObj.text || '';
+            recipeDisplay.scrollTop = recipeDisplay.scrollHeight;
+        } catch (error) {
+            console.error('Invalid streaming data:', line);
+        }
+    }
+}
                     }
                 }
             } catch (err) {
