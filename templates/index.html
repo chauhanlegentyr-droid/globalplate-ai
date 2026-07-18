@@ -3,98 +3,1892 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GlobalPlate // Cultural AI Recipe Guide</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="description" content="GlobalPlate AI - AI-powered international culinary assistant.">
+    <title>GlobalPlate AI | International AI Chef</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+
+    <style>
+        :root {
+            --background: #fffaf2;
+            --surface: rgba(255,255,255,.94);
+            --surface-solid: #ffffff;
+            --surface-soft: #fff5e8;
+            --sidebar: #14251d;
+            --text: #22201d;
+            --muted: #746d65;
+            --border: #eadaca;
+            --accent: #dc6b19;
+            --accent-hover: #b84e08;
+            --green: #2f6f4e;
+            --user: #173f31;
+            --shadow: 0 24px 60px rgba(66,39,17,.12);
+            --small-shadow: 0 10px 30px rgba(66,39,17,.08);
+        }
+
+        body.dark-mode {
+            --background: #111814;
+            --surface: rgba(25,34,28,.96);
+            --surface-solid: #19221c;
+            --surface-soft: #202c24;
+            --text: #f6f0e7;
+            --muted: #b9b0a5;
+            --border: #334239;
+            --accent: #ed7c2f;
+            --accent-hover: #ff9148;
+            --green: #6fb98a;
+            --user: #d26a22;
+            --shadow: 0 24px 60px rgba(0,0,0,.3);
+            --small-shadow: 0 10px 30px rgba(0,0,0,.2);
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-family: "DM Sans", Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 10% 5%, rgba(255,201,121,.42), transparent 30%),
+                radial-gradient(circle at 90% 90%, rgba(97,153,109,.25), transparent 30%),
+                var(--background);
+        }
+
+        button, input { font: inherit; }
+        button { cursor: pointer; }
+
+        .app-shell {
+            display: grid;
+            grid-template-columns: 300px minmax(0,1fr);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 16px;
+            overflow: hidden;
+            color: white;
+            background: linear-gradient(180deg, var(--sidebar), #0e1a14);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 6px 20px;
+        }
+
+        .brand-logo {
+            width: 52px;
+            height: 52px;
+            display: grid;
+            place-items: center;
+            flex: 0 0 auto;
+            border-radius: 17px;
+            background: linear-gradient(145deg,#f59e42,#d85e12);
+            box-shadow: 0 10px 24px rgba(0,0,0,.2);
+            font-size: 1.8rem;
+        }
+
+        .brand-copy h1 {
+            margin: 0;
+            font-family: "Playfair Display", serif;
+            font-size: 1.3rem;
+        }
+
+        .brand-copy p {
+            margin: 3px 0 0;
+            color: rgba(255,255,255,.64);
+            font-size: .76rem;
+        }
+
+        .new-chat-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 13px;
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 13px;
+            background: rgba(255,255,255,.06);
+            color: white;
+            font-weight: 700;
+        }
+
+        .new-chat-button:hover { background: rgba(255,255,255,.12); }
+
+        .sidebar-section {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            min-height: 0;
+            margin-top: 25px;
+        }
+
+        .sidebar-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px 10px;
+        }
+
+        .sidebar-title {
+            color: rgba(255,255,255,.62);
+            font-size: .75rem;
+            font-weight: 800;
+            letter-spacing: .09em;
+            text-transform: uppercase;
+        }
+
+        .clear-history-button {
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,.56);
+            font-size: .75rem;
+        }
+
+        .dish-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            overflow-y: auto;
+            padding: 0 2px 10px;
+        }
+
+        .dish-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+        }
+
+        .dish-row:hover,
+        .dish-row.active {
+            background: rgba(255,255,255,.08);
+            border-color: rgba(255,255,255,.08);
+        }
+
+        .dish-button {
+            flex: 1;
+            min-width: 0;
+            padding: 11px 9px;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,.92);
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .delete-dish-button {
+            padding: 8px;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,.45);
+            opacity: 0;
+        }
+
+        .dish-row:hover .delete-dish-button { opacity: 1; }
+
+        .empty-list {
+            padding: 16px 8px;
+            color: rgba(255,255,255,.5);
+            font-size: .85rem;
+            line-height: 1.55;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 6px 4px;
+            border-top: 1px solid rgba(255,255,255,.11);
+            line-height: 1.55;
+        }
+
+        .footer-title {
+            color: white;
+            font-size: .79rem;
+            font-weight: 700;
+        }
+
+        .footer-author {
+            margin-top: 7px;
+            color: rgba(255,255,255,.62);
+            font-size: .73rem;
+        }
+
+        .footer-author strong { color: #ffb25a; }
+
+        .footer-version {
+            margin-top: 8px;
+            color: #7edb9a;
+            font-size: .69rem;
+            font-weight: 700;
+        }
+
+        .footer-tech {
+            margin-top: 5px;
+            color: rgba(255,255,255,.46);
+            font-size: .68rem;
+        }
+
+        .main-area { min-width: 0; }
+        .mobile-header { display: none; }
+
+        .hero {
+            width: min(1120px, calc(100% - 38px));
+            margin: 0 auto;
+            padding: 32px 0 22px;
+        }
+
+        .hero-card {
+            position: relative;
+            display: grid;
+            grid-template-columns: minmax(0,1.2fr) minmax(280px,.8fr);
+            min-height: 245px;
+            overflow: hidden;
+            border: 1px solid rgba(220,107,25,.16);
+            border-radius: 28px;
+            background: linear-gradient(115deg,rgba(255,255,255,.96),rgba(255,245,229,.9));
+            box-shadow: var(--shadow);
+        }
+
+        body.dark-mode .hero-card {
+            background: linear-gradient(115deg,rgba(28,39,32,.98),rgba(35,48,40,.96));
+        }
+
+        .hero-content {
+            z-index: 2;
+            padding: 34px 10px 32px 36px;
+        }
+
+        .project-badge {
+            display: inline-flex;
+            padding: 7px 12px;
+            border: 1px solid rgba(220,107,25,.25);
+            border-radius: 999px;
+            background: rgba(255,255,255,.72);
+            color: #9a410b;
+            font-size: .76rem;
+            font-weight: 800;
+        }
+
+        body.dark-mode .project-badge {
+            background: rgba(255,255,255,.08);
+            color: #ffad70;
+        }
+
+        .hero h2 {
+            margin: 15px 0 8px;
+            font-family: "Playfair Display", serif;
+            font-size: clamp(2.25rem,4.6vw,4rem);
+            line-height: 1.02;
+            letter-spacing: -.035em;
+        }
+
+        .hero-highlight { color: var(--accent); }
+
+        .hero-description {
+            max-width: 650px;
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .hero-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 19px;
+        }
+
+        .hero-tag {
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--surface);
+            color: var(--green);
+            font-size: .76rem;
+            font-weight: 700;
+        }
+
+        .hero-image-wrap {
+            position: relative;
+            min-height: 245px;
+            overflow: hidden;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            min-height: 245px;
+            object-fit: cover;
+        }
+
+        .hero-image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg,rgba(255,250,242,.95),rgba(255,250,242,.04) 40%);
+            pointer-events: none;
+        }
+
+        body.dark-mode .hero-image-overlay {
+            background: linear-gradient(90deg,rgba(28,39,32,.94),rgba(28,39,32,.04) 40%);
+        }
+
+        .image-credit {
+            position: absolute;
+            right: 12px;
+            bottom: 10px;
+            z-index: 3;
+            display: none;
+            padding: 5px 8px;
+            border-radius: 999px;
+            background: rgba(0,0,0,.58);
+            color: white;
+            font-size: .68rem;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+        }
+
+        .theme-button {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 5;
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface);
+            color: var(--text);
+            box-shadow: var(--small-shadow);
+        }
+
+        .nutrition-card {
+            display: none;
+            width: min(1120px, calc(100% - 38px));
+            margin: 0 auto 22px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--surface);
+            box-shadow: var(--small-shadow);
+        }
+
+        .nutrition-card.visible { display: block; }
+
+        .nutrition-card h3 {
+            margin: 0 0 12px;
+            font-family: "Playfair Display", serif;
+            color: var(--green);
+        }
+
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0,1fr));
+            gap: 10px;
+        }
+
+        .nutrition-item {
+            padding: 13px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: var(--surface-soft);
+        }
+
+        .nutrition-label {
+            display: block;
+            color: var(--muted);
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .nutrition-value {
+            display: block;
+            margin-top: 4px;
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .chat-container {
+            width: min(1120px, calc(100% - 38px));
+            margin: 0 auto 32px;
+        }
+
+        .chat-card {
+            min-height: 650px;
+            max-height: calc(100vh - 335px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 26px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+        }
+
+        .chat-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 17px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chat-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .86rem;
+            font-weight: 800;
+        }
+
+        .online-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #31a467;
+            box-shadow: 0 0 0 4px rgba(49,164,103,.15);
+        }
+
+        .chat-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .small-action-button {
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface-solid);
+            color: var(--text);
+            font-size: .75rem;
+            font-weight: 700;
+        }
+
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 26px;
+            scroll-behavior: smooth;
+        }
+
+        .message-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .message-row.user-row { justify-content: flex-end; }
+
+        .assistant-avatar {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            flex: 0 0 auto;
+            border-radius: 12px;
+            background: linear-gradient(145deg,#f59e42,#d85e12);
+            box-shadow: var(--small-shadow);
+        }
+
+        .message {
+            max-width: min(86%,840px);
+            padding: 15px 18px;
+            border-radius: 18px;
+            line-height: 1.65;
+            overflow-wrap: anywhere;
+        }
+
+        .user-message {
+            border-bottom-right-radius: 5px;
+            background: var(--user);
+            color: white;
+            box-shadow: var(--small-shadow);
+            white-space: pre-wrap;
+        }
+
+        .assistant-message {
+            border: 1px solid rgba(220,107,25,.13);
+            border-bottom-left-radius: 5px;
+            background: linear-gradient(145deg,var(--surface-soft),var(--surface-solid));
+            box-shadow: var(--small-shadow);
+        }
+
+        .assistant-message h1 {
+            margin: 0 0 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(220,107,25,.18);
+            color: var(--accent);
+            font-family: "Playfair Display", serif;
+            font-size: 1.65rem;
+        }
+
+        .assistant-message h2 {
+            margin: 23px 0 9px;
+            color: var(--green);
+            font-family: "Playfair Display", serif;
+            font-size: 1.2rem;
+        }
+
+        .assistant-message h3 {
+            margin: 17px 0 7px;
+            color: var(--accent);
+        }
+
+        .assistant-message p { margin: 8px 0; }
+
+        .assistant-message ul,
+        .assistant-message ol {
+            margin: 9px 0 14px;
+            padding-left: 23px;
+        }
+
+        .assistant-message li { margin: 6px 0; }
+        .assistant-message strong { color: var(--accent); }
+
+        .assistant-message .ingredient-checkbox {
+            margin-right: 8px;
+            accent-color: var(--accent);
+        }
+
+        .typing-cursor::after {
+            content: "▋";
+            margin-left: 2px;
+            color: var(--accent);
+            animation: blink .85s infinite;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .input-panel {
+            padding: 15px;
+            border-top: 1px solid var(--border);
+            background: var(--surface-solid);
+        }
+
+        .input-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex: 1;
+            min-width: 0;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: var(--surface);
+            color: var(--text);
+            outline: none;
+        }
+
+        .message-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(220,107,25,.12);
+        }
+
+        .voice-button {
+            width: 48px;
+            height: 48px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: var(--surface-soft);
+            color: var(--text);
+        }
+
+        .voice-button.listening {
+            background: #b91c1c;
+            color: white;
+        }
+
+        .send-button {
+            min-width: 118px;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg,var(--accent),#ef8b38);
+            color: white;
+            font-weight: 800;
+        }
+
+        .send-button:disabled { opacity: .6; cursor: not-allowed; }
+
+        .suggestion-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 11px;
+        }
+
+        .suggestion-button {
+            padding: 8px 11px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--surface-soft);
+            color: var(--text);
+            font-size: .78rem;
+        }
+
+        .status {
+            min-height: 18px;
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: .78rem;
+        }
+
+        .sidebar-overlay { display: none; }
+
+
+
+        .recipe-showcase {
+            display: none;
+            width: min(1120px, calc(100% - 38px));
+            margin: 0 auto 22px;
+        }
+
+        .recipe-showcase.visible {
+            display: block;
+            animation: recipeReveal .45s ease both;
+        }
+
+        @keyframes recipeReveal {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .recipe-showcase-card {
+            display: grid;
+            grid-template-columns: minmax(300px, .9fr) minmax(0, 1.1fr);
+            min-height: 320px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 26px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .recipe-photo-wrap {
+            position: relative;
+            min-height: 320px;
+            overflow: hidden;
+            background: var(--surface-soft);
+        }
+
+        .recipe-photo {
+            width: 100%;
+            height: 100%;
+            min-height: 320px;
+            display: block;
+            object-fit: cover;
+            opacity: 0;
+            transform: scale(1.025);
+            transition: opacity .35s ease, transform .6s ease;
+        }
+
+        .recipe-photo.loaded { opacity: 1; transform: scale(1); }
+
+        .recipe-photo-loader {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .recipe-photo-loader.hidden { display: none; }
+
+        .recipe-photo-credit {
+            position: absolute;
+            left: 12px;
+            bottom: 12px;
+            display: none;
+            padding: 6px 9px;
+            border-radius: 999px;
+            background: rgba(0,0,0,.62);
+            color: #fff;
+            font-size: .68rem;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+        }
+
+        .recipe-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .recipe-eyebrow {
+            color: var(--accent);
+            font-size: .76rem;
+            font-weight: 800;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+
+        .recipe-name {
+            margin: 8px 0 10px;
+            font-family: "Playfair Display", serif;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            line-height: 1.04;
+        }
+
+        .recipe-origin {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        .recipe-meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .recipe-meta-item {
+            padding: 12px 13px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: var(--surface-soft);
+        }
+
+        .recipe-meta-label {
+            display: block;
+            color: var(--muted);
+            font-size: .7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .recipe-meta-value {
+            display: block;
+            margin-top: 4px;
+            color: var(--text);
+            font-weight: 800;
+        }
+
+        @media (max-width: 760px) {
+            .recipe-showcase-card { grid-template-columns: 1fr; }
+            .recipe-photo-wrap, .recipe-photo { min-height: 235px; }
+            .recipe-details { padding: 22px; }
+        }
+
+        @media (max-width: 560px) {
+            .recipe-showcase { width: calc(100% - 16px); }
+            .recipe-meta { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 920px) {
+            .app-shell { display: block; }
+
+            .sidebar {
+                position: fixed;
+                z-index: 100;
+                width: 295px;
+                transform: translateX(-105%);
+                transition: transform .25s ease;
+            }
+
+            .sidebar.open { transform: translateX(0); }
+
+            .sidebar-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 90;
+                background: rgba(0,0,0,.48);
+            }
+
+            .sidebar-overlay.visible { display: block; }
+
+            .mobile-header {
+                position: sticky;
+                top: 0;
+                z-index: 50;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 11px 15px;
+                border-bottom: 1px solid var(--border);
+                background: var(--surface);
+            }
+
+            .mobile-button {
+                width: 38px;
+                height: 38px;
+                border: 1px solid var(--border);
+                border-radius: 11px;
+                background: var(--surface-solid);
+                color: var(--text);
+            }
+
+            .chat-card { max-height: none; }
+        }
+
+        @media (max-width: 720px) {
+            .hero-card { display: block; }
+            .hero-content { padding: 29px 24px; }
+            .hero-image-wrap { min-height: 190px; }
+            .chat-area { padding: 17px 13px; }
+            .message { max-width: 92%; }
+            .nutrition-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+        }
+
+        @media (max-width: 560px) {
+            .hero,
+            .nutrition-card,
+            .chat-container {
+                width: calc(100% - 16px);
+            }
+
+            .hero h2 { font-size: 2.25rem; }
+
+            .input-form {
+                display: grid;
+                grid-template-columns: 1fr 48px;
+            }
+
+            .send-button {
+                width: 100%;
+                grid-column: 1 / -1;
+            }
+
+            .chat-actions .button-label { display: none; }
+        }
+
+        @media print {
+            .sidebar,
+            .mobile-header,
+            .hero,
+            .nutrition-card,
+            .chat-toolbar,
+            .input-panel,
+            .user-row {
+                display: none !important;
+            }
+
+            .app-shell { display: block; }
+            .chat-container { width: 100%; margin: 0; }
+            .chat-card { max-height: none; border: none; box-shadow: none; }
+            .chat-area { overflow: visible; padding: 0; }
+            .assistant-message { max-width: 100%; border: none; box-shadow: none; }
+        }
+    </style>
 </head>
-<body class="bg-amber-50 min-h-screen flex flex-col font-sans text-slate-800">
 
-    <!-- Header Navbar -->
-    <header class="bg-orange-600 text-white shadow-md p-4">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-tight">🌍 GlobalPlate <span class="text-xs font-normal bg-orange-500 px-2 py-0.5 rounded ml-2">Cultural AI Guide</span></h1>
-            <span class="text-sm text-orange-200">IBM Project</span>
-        </div>
-    </header>
+<body>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-    <!-- Main Container -->
-    <main class="flex-1 max-w-4xl w-full mx-auto p-4 flex flex-col justify-between overflow-hidden">
-        <!-- Interactive Recipe View -->
-        <div id="recipe-display" class="flex-1 bg-white rounded-2xl shadow-sm border border-orange-100 p-6 mb-4 overflow-y-auto space-y-4 max-h-[68vh]">
-            <div class="bg-orange-50 text-orange-900 p-4 rounded-xl max-w-[90%] self-start text-sm border-l-4 border-orange-500">
-                <strong>Welcome to GlobalPlate!</strong> Type any dish name (e.g., <em>Tacos al Pastor, Butter Chicken, Sushi, Croissants</em>) or list raw ingredients. I will stream its traditional cultural heritage, cross-metric cooking steps, and culinary secrets in real-time.
+    <div class="app-shell">
+        <aside id="sidebar" class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">🍲</div>
+                <div class="brand-copy">
+                    <h1>GlobalPlate AI</h1>
+                    <p>Explore · Cook · Learn</p>
+                </div>
             </div>
-        </div>
 
-        <!-- Input Bar Area -->
-        <div class="bg-white p-3 rounded-xl shadow-sm border border-orange-100 flex gap-2">
-            <input type="text" id="dish-input" placeholder="Enter an international dish or regional cuisine recipe..." 
-                   class="flex-1 px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm">
-            <button id="search-btn" onclick="fetchRecipe()" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium text-sm transition-all whitespace-nowrap shadow-sm">
-                Explore Culinary Culture
+            <button id="newChatButton" class="new-chat-button" type="button">
+                ＋ New conversation
             </button>
-        </div>
-    </main>
+
+            <section class="sidebar-section">
+                <div class="sidebar-section-header">
+                    <div class="sidebar-title">🍽 Dishes learned</div>
+                    <button id="clearHistoryButton" class="clear-history-button" type="button">Clear</button>
+                </div>
+                <div id="dishList" class="dish-list"></div>
+            </section>
+
+            <div class="sidebar-footer">
+                <div class="footer-title">IBM Gen AI & Cloud Computing Project</div>
+                <div class="footer-author">
+                    Developed by <strong>Nirbhaysingh A. Chauhan</strong>
+                </div>
+                <div class="footer-version">Version 1.0</div>
+                <div class="footer-tech">Powered by Gemini • FastAPI • Docker • AWS</div>
+            </div>
+        </aside>
+
+        <main class="main-area">
+            <header class="mobile-header">
+                <button id="mobileMenuButton" class="mobile-button" type="button">☰</button>
+                <strong>🍲 GlobalPlate AI</strong>
+                <button id="mobileNewChatButton" class="mobile-button" type="button">＋</button>
+            </header>
+
+            <section class="hero">
+                <article class="hero-card">
+                    <button id="themeButton" class="theme-button" type="button">🌙</button>
+
+                    <div class="hero-content">
+                        <div class="project-badge">✦ IBM Gen AI & Cloud Project</div>
+                        <h2>
+                            Your passport to
+                            <span class="hero-highlight">global cuisine</span>
+                        </h2>
+                        <p class="hero-description">
+                            Explore authentic recipes, cultural stories, healthy recommendations,
+                            ingredient alternatives and personalized cooking advice with conversation memory.
+                        </p>
+
+                        <div class="hero-tags">
+                            <span class="hero-tag">🌍 Global recipes</span>
+                            <span class="hero-tag">🥗 Healthy options</span>
+                            <span class="hero-tag">🧠 Conversation memory</span>
+                            <span class="hero-tag">⚡ Streaming AI</span>
+                        </div>
+                    </div>
+
+                    <div class="hero-image-wrap">
+                        <img
+                            id="heroImage"
+                            class="hero-image"
+                            src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=85"
+                            alt="A colorful selection of international food"
+                        >
+                        <a
+                            id="imageCredit"
+                            class="image-credit"
+                            href="#"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        ></a>
+                        <div class="hero-image-overlay"></div>
+                    </div>
+                </article>
+            </section>
+
+
+
+            <section id="recipeShowcase" class="recipe-showcase" aria-live="polite">
+                <article class="recipe-showcase-card">
+                    <div class="recipe-photo-wrap">
+                        <div id="recipePhotoLoader" class="recipe-photo-loader">🍽 Finding the best dish photo…</div>
+                        <img id="recipePhoto" class="recipe-photo" alt="Searched dish">
+                        <a id="recipePhotoCredit" class="recipe-photo-credit" href="#" target="_blank" rel="noopener noreferrer"></a>
+                    </div>
+                    <div class="recipe-details">
+                        <div class="recipe-eyebrow">Featured recipe</div>
+                        <h2 id="recipeName" class="recipe-name">Your dish</h2>
+                        <p id="recipeOrigin" class="recipe-origin">A GlobalPlate AI recipe selected for you.</p>
+                        <div class="recipe-meta">
+                            <div class="recipe-meta-item"><span class="recipe-meta-label">🌍 Origin</span><span id="recipeOriginShort" class="recipe-meta-value">—</span></div>
+                            <div class="recipe-meta-item"><span class="recipe-meta-label">⏱ Total time</span><span id="recipeTime" class="recipe-meta-value">—</span></div>
+                            <div class="recipe-meta-item"><span class="recipe-meta-label">⭐ Difficulty</span><span id="recipeDifficulty" class="recipe-meta-value">—</span></div>
+                            <div class="recipe-meta-item"><span class="recipe-meta-label">🔥 Calories</span><span id="recipeCalories" class="recipe-meta-value">—</span></div>
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            <section id="nutritionCard" class="nutrition-card">
+                <h3>🥗 Nutrition estimate per serving</h3>
+                <div class="nutrition-grid">
+                    <div class="nutrition-item">
+                        <span class="nutrition-label">Calories</span>
+                        <span id="nutritionCalories" class="nutrition-value">—</span>
+                    </div>
+                    <div class="nutrition-item">
+                        <span class="nutrition-label">Protein</span>
+                        <span id="nutritionProtein" class="nutrition-value">—</span>
+                    </div>
+                    <div class="nutrition-item">
+                        <span class="nutrition-label">Carbohydrates</span>
+                        <span id="nutritionCarbs" class="nutrition-value">—</span>
+                    </div>
+                    <div class="nutrition-item">
+                        <span class="nutrition-label">Fat</span>
+                        <span id="nutritionFat" class="nutrition-value">—</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="chat-container">
+                <article class="chat-card">
+                    <header class="chat-toolbar">
+                        <div class="chat-title">
+                            <span class="online-dot"></span>
+                            GlobalPlate culinary assistant
+                        </div>
+
+                        <div class="chat-actions">
+                            <button id="copyButton" class="small-action-button" type="button">📋 <span class="button-label">Copy</span></button>
+                            <button id="downloadButton" class="small-action-button" type="button">⬇️ <span class="button-label">Download</span></button>
+                            <button id="printButton" class="small-action-button" type="button">🖨 <span class="button-label">Print / PDF</span></button>
+                        </div>
+                    </header>
+
+                    <div id="chatArea" class="chat-area" aria-live="polite"></div>
+
+                    <div class="input-panel">
+                        <form id="chatForm" class="input-form">
+                            <input
+                                id="messageInput"
+                                class="message-input"
+                                type="text"
+                                placeholder="Ask for a dish, recipe or cooking advice..."
+                                autocomplete="off"
+                                maxlength="2000"
+                                required
+                            >
+                            <button id="voiceButton" class="voice-button" type="button" title="Voice input">🎤</button>
+                            <button id="sendButton" class="send-button" type="submit">Explore ➜</button>
+                        </form>
+
+                        <div class="suggestion-row">
+                            <button class="suggestion-button" type="button" data-prompt="Give me an authentic Punjabi samosa recipe">🥟 Punjabi samosa</button>
+                            <button class="suggestion-button" type="button" data-prompt="Suggest a light, healthy and high-protein dinner">🥗 Healthy dinner</button>
+                            <button class="suggestion-button" type="button" data-prompt="Give me an authentic Italian pasta recipe">🍝 Italian pasta</button>
+                            <button class="suggestion-button" type="button" data-prompt="Suggest easy Indian breakfast options">🫓 Indian breakfast</button>
+                        </div>
+
+                        <div id="status" class="status"></div>
+                    </div>
+                </article>
+            </section>
+        </main>
+    </div>
 
     <script>
-        async function fetchRecipe() {
-            const inputField = document.getElementById('dish-input');
-            const recipeDisplay = document.getElementById('recipe-display');
-            const dish = inputField.value.trim();
-            if (!dish) return;
+        const chatArea = document.getElementById("chatArea");
+        const chatForm = document.getElementById("chatForm");
+        const messageInput = document.getElementById("messageInput");
+        const sendButton = document.getElementById("sendButton");
+        const statusElement = document.getElementById("status");
 
-            // Render User Input Block
-            recipeDisplay.innerHTML += `<div class="bg-slate-100 text-slate-800 p-3 rounded-lg max-w-[85%] ml-auto text-sm text-right font-medium">Target: ${dish}</div>`;
-            inputField.value = '';
-            recipeDisplay.scrollTop = recipeDisplay.scrollHeight;
+        const dishList = document.getElementById("dishList");
+        const newChatButton = document.getElementById("newChatButton");
+        const mobileNewChatButton = document.getElementById("mobileNewChatButton");
+        const clearHistoryButton = document.getElementById("clearHistoryButton");
 
-            // Generate Empty Stream Window
-            const streamId = 'stream-' + Date.now();
-            recipeDisplay.innerHTML += `<div id="${streamId}" class="bg-orange-50/50 text-slate-800 p-4 rounded-xl border border-orange-100/50 text-sm whitespace-pre-line leading-relaxed">⏳ Connecting to Global Chef Network...</div>`;
-            recipeDisplay.scrollTop = recipeDisplay.scrollHeight;
-            const streamContainer = document.getElementById(streamId);
+        const copyButton = document.getElementById("copyButton");
+        const downloadButton = document.getElementById("downloadButton");
+        const printButton = document.getElementById("printButton");
+        const themeButton = document.getElementById("themeButton");
+        const voiceButton = document.getElementById("voiceButton");
 
-            try {
-                const response = await fetch('/api/cook', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: dish })
-                });
+        const sidebar = document.getElementById("sidebar");
+        const sidebarOverlay = document.getElementById("sidebarOverlay");
+        const mobileMenuButton = document.getElementById("mobileMenuButton");
 
-                if (!response.body) return;
-                streamContainer.innerText = ''; // Clear initial connecting placeholder
-                
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) break;
-                    
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split('\n');
-                    
-                    for (const line of lines) {
-    if (line.startsWith('data: ')) {
-        try {
-            const parsedObj = JSON.parse(line.slice(6));
-            streamContainer.innerText += parsedObj.text || '';
-            recipeDisplay.scrollTop = recipeDisplay.scrollHeight;
-        } catch (error) {
-            console.error('Invalid streaming data:', line);
+        const heroImage = document.getElementById("heroImage");
+        const imageCredit = document.getElementById("imageCredit");
+
+
+
+        const recipeShowcase = document.getElementById("recipeShowcase");
+        const recipePhoto = document.getElementById("recipePhoto");
+        const recipePhotoLoader = document.getElementById("recipePhotoLoader");
+        const recipePhotoCredit = document.getElementById("recipePhotoCredit");
+        const recipeName = document.getElementById("recipeName");
+        const recipeOrigin = document.getElementById("recipeOrigin");
+        const recipeOriginShort = document.getElementById("recipeOriginShort");
+        const recipeTime = document.getElementById("recipeTime");
+        const recipeDifficulty = document.getElementById("recipeDifficulty");
+        const recipeCalories = document.getElementById("recipeCalories");
+
+        const nutritionCard = document.getElementById("nutritionCard");
+        const nutritionCalories = document.getElementById("nutritionCalories");
+        const nutritionProtein = document.getElementById("nutritionProtein");
+        const nutritionCarbs = document.getElementById("nutritionCarbs");
+        const nutritionFat = document.getElementById("nutritionFat");
+
+        const DEFAULT_HERO_IMAGE =
+            "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=85";
+
+        const CONVERSATION_STORAGE_KEY = "globalplate_conversations_final_v1";
+        const THEME_STORAGE_KEY = "globalplate_theme";
+
+        let conversationHistory = [];
+        let activeConversationId = null;
+        let savedConversations = loadConversations();
+
+        function escapeHtml(value) {
+            return String(value || "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
         }
-    }
-}
-                    }
-                }
-            } catch (err) {
-                streamContainer.innerText = "Connection Error: Failed to retrieve cultural recipe data from the server.";
+
+        function renderMarkdown(text) {
+            const value = String(text || "");
+
+            if (
+                typeof window.marked === "undefined" ||
+                typeof window.DOMPurify === "undefined"
+            ) {
+                return escapeHtml(value).replaceAll("\n", "<br>");
+            }
+
+            return window.DOMPurify.sanitize(
+                window.marked.parse(value)
+            );
+        }
+
+        function loadConversations() {
+            try {
+                const stored = localStorage.getItem(CONVERSATION_STORAGE_KEY);
+                if (!stored) return [];
+
+                const parsed = JSON.parse(stored);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                console.error(error);
+                return [];
             }
         }
 
-        // Catch Enter key inputs
-        document.getElementById('dish-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') fetchRecipe();
+        function saveConversations() {
+            localStorage.setItem(
+                CONVERSATION_STORAGE_KEY,
+                JSON.stringify(savedConversations)
+            );
+        }
+
+        function createId() {
+            return Date.now().toString(36) + Math.random().toString(36).slice(2);
+        }
+
+        function getDishEmoji(title) {
+            const text = String(title || "").toLowerCase();
+
+            if (text.includes("samosa") || text.includes("dumpling")) return "🥟";
+            if (text.includes("pasta") || text.includes("spaghetti")) return "🍝";
+            if (text.includes("pizza")) return "🍕";
+            if (text.includes("sushi")) return "🍣";
+            if (text.includes("biryani") || text.includes("rice")) return "🍚";
+            if (text.includes("chicken")) return "🍗";
+            if (text.includes("salad") || text.includes("healthy")) return "🥗";
+            if (text.includes("soup")) return "🍲";
+            if (text.includes("cake") || text.includes("dessert")) return "🍰";
+            if (text.includes("breakfast")) return "🍳";
+
+            return "🍽";
+        }
+
+        function addMessage(text, role) {
+            const row = document.createElement("div");
+            row.className = role === "user" ? "message-row user-row" : "message-row";
+
+            if (role === "assistant") {
+                const avatar = document.createElement("div");
+                avatar.className = "assistant-avatar";
+                avatar.textContent = "🍲";
+                row.appendChild(avatar);
+            }
+
+            const message = document.createElement("div");
+            message.className =
+                role === "user"
+                    ? "message user-message"
+                    : "message assistant-message";
+
+            if (role === "assistant") {
+                message.innerHTML = renderMarkdown(text);
+                enhanceIngredientChecklist(message);
+            } else {
+                message.textContent = text;
+            }
+
+            row.appendChild(message);
+            chatArea.appendChild(row);
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            return message;
+        }
+
+        function enhanceIngredientChecklist(container) {
+            const headings = Array.from(
+                container.querySelectorAll("h1, h2, h3")
+            );
+
+            const ingredientsHeading = headings.find(
+                (heading) => heading.textContent.toLowerCase().includes("ingredient")
+            );
+
+            if (!ingredientsHeading) return;
+
+            let node = ingredientsHeading.nextElementSibling;
+
+            while (node && !/^H[1-3]$/.test(node.tagName)) {
+                if (node.tagName === "UL") {
+                    node.querySelectorAll("li").forEach((item) => {
+                        if (item.querySelector(".ingredient-checkbox")) return;
+
+                        const checkbox = document.createElement("input");
+                        checkbox.type = "checkbox";
+                        checkbox.className = "ingredient-checkbox";
+                        checkbox.setAttribute("aria-label", "Mark ingredient as prepared");
+                        item.prepend(checkbox);
+                    });
+                }
+
+                node = node.nextElementSibling;
+            }
+        }
+
+        function showWelcomeMessage() {
+            chatArea.innerHTML = "";
+
+            addMessage(
+                "# Welcome to GlobalPlate AI 🌍\n\n" +
+                "I can help you with:\n\n" +
+                "- Authentic recipes from around the world\n" +
+                "- Healthy and high-protein meal suggestions\n" +
+                "- Ingredient substitutions\n" +
+                "- Cooking techniques and food safety\n" +
+                "- Follow-up questions about previous recipes\n\n" +
+                "Try asking: **“Give me a Punjabi samosa recipe.”**",
+                "assistant"
+            );
+        }
+
+        function renderConversation() {
+            chatArea.innerHTML = "";
+
+            if (conversationHistory.length === 0) {
+                showWelcomeMessage();
+                return;
+            }
+
+            conversationHistory.forEach((item) => {
+                addMessage(item.content, item.role);
+            });
+
+            updateNutritionCard(getLatestAssistantResponse());
+            const firstUser = conversationHistory.find((item) => item.role === "user");
+            const latestAssistant = getLatestAssistantResponse();
+            if (firstUser && latestAssistant) updateRecipeShowcase(latestAssistant, firstUser.content);
+        }
+
+        function createConversationTitle(message) {
+            const cleaned = String(message || "")
+                .replace(
+                    /^(give me|show me|tell me|how to make|recipe for|i want|make me|suggest)\s+/i,
+                    ""
+                )
+                .replace(/\b(authentic|recipe|options)\b/gi, "")
+                .replace(/\s+/g, " ")
+                .trim();
+
+            const title = cleaned || String(message || "").trim();
+
+            return title.length > 34
+                ? title.slice(0, 34) + "…"
+                : title;
+        }
+
+        function renderDishList() {
+            dishList.innerHTML = "";
+
+            if (savedConversations.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "empty-list";
+                empty.textContent =
+                    "Recipes and culinary conversations you explore will appear here.";
+                dishList.appendChild(empty);
+                return;
+            }
+
+            savedConversations.forEach((conversation) => {
+                const row = document.createElement("div");
+                row.className = "dish-row";
+
+                if (conversation.id === activeConversationId) {
+                    row.classList.add("active");
+                }
+
+                const openButton = document.createElement("button");
+                openButton.type = "button";
+                openButton.className = "dish-button";
+                openButton.innerHTML =
+                    `<span>${getDishEmoji(conversation.title)}</span> ` +
+                    escapeHtml(conversation.title);
+
+                openButton.addEventListener("click", () => {
+                    openConversation(conversation.id);
+                });
+
+                const deleteButton = document.createElement("button");
+                deleteButton.type = "button";
+                deleteButton.className = "delete-dish-button";
+                deleteButton.textContent = "✕";
+
+                deleteButton.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    deleteConversation(conversation.id);
+                });
+
+                row.appendChild(openButton);
+                row.appendChild(deleteButton);
+                dishList.appendChild(row);
+            });
+        }
+
+        function updateSavedConversation(firstUserMessage) {
+            if (!activeConversationId) {
+                activeConversationId = createId();
+
+                savedConversations.unshift({
+                    id: activeConversationId,
+                    title: createConversationTitle(firstUserMessage),
+                    history: [],
+                    updatedAt: Date.now()
+                });
+            }
+
+            const conversation = savedConversations.find(
+                (item) => item.id === activeConversationId
+            );
+
+            if (!conversation) return;
+
+            conversation.history = conversationHistory.map((item) => ({
+                role: item.role,
+                content: item.content
+            }));
+
+            conversation.updatedAt = Date.now();
+
+            savedConversations.sort((a, b) => b.updatedAt - a.updatedAt);
+            savedConversations = savedConversations.slice(0, 30);
+
+            saveConversations();
+            renderDishList();
+        }
+
+        async function updateDishImage(query) {
+            try {
+                const response = await fetch(
+                    `/api/image?query=${encodeURIComponent(query)}`
+                );
+
+                if (!response.ok) throw new Error("Image request failed.");
+
+                const data = await response.json();
+
+                if (data.image_url) {
+                    heroImage.src = data.image_url;
+                    heroImage.alt = `${query} food dish`;
+
+                    if (data.photographer) {
+                        imageCredit.textContent = `Photo: ${data.photographer}`;
+                        imageCredit.href = data.photographer_url || "#";
+                        imageCredit.style.display = "block";
+                    } else {
+                        imageCredit.style.display = "none";
+                    }
+                } else {
+                    resetHeroImage();
+                }
+            } catch (error) {
+                console.error(error);
+                resetHeroImage();
+            }
+        }
+
+        function resetHeroImage() {
+            heroImage.src = DEFAULT_HERO_IMAGE;
+            heroImage.alt = "A colorful selection of international food";
+            imageCredit.textContent = "";
+            imageCredit.style.display = "none";
+        }
+
+        function openConversation(id) {
+            const conversation = savedConversations.find(
+                (item) => item.id === id
+            );
+
+            if (!conversation) return;
+
+            activeConversationId = conversation.id;
+            conversationHistory = Array.isArray(conversation.history)
+                ? conversation.history.map((item) => ({
+                    role: item.role,
+                    content: item.content
+                }))
+                : [];
+
+            renderConversation();
+            renderDishList();
+
+            const firstUserMessage = conversationHistory.find(
+                (item) => item.role === "user"
+            );
+
+            if (firstUserMessage) {
+                updateDishImage(firstUserMessage.content);
+            }
+
+            closeSidebar();
+            messageInput.focus();
+        }
+
+        function deleteConversation(id) {
+            savedConversations = savedConversations.filter(
+                (conversation) => conversation.id !== id
+            );
+
+            if (activeConversationId === id) {
+                startNewConversation();
+            }
+
+            saveConversations();
+            renderDishList();
+        }
+
+        function startNewConversation() {
+            activeConversationId = null;
+            conversationHistory = [];
+            messageInput.value = "";
+            statusElement.textContent = "";
+            nutritionCard.classList.remove("visible");
+            resetHeroImage();
+            resetRecipeShowcase();
+
+            showWelcomeMessage();
+            renderDishList();
+            closeSidebar();
+            messageInput.focus();
+        }
+
+        function openSidebar() {
+            sidebar.classList.add("open");
+            sidebarOverlay.classList.add("visible");
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove("open");
+            sidebarOverlay.classList.remove("visible");
+        }
+
+
+
+        function extractMarkdownHeading(text) {
+            const match = String(text || "").match(/^#\s+(?:🍽\s*)?(.+)$/m);
+            return match ? match[1].replace(/[✨🌍🍲]/g, "").trim() : "";
+        }
+
+        function extractSectionText(text, heading) {
+            const expression = new RegExp(`##\\s+[^\\n]*${heading}[^\\n]*\\n([\\s\\S]*?)(?=\\n##\\s|$)`, "i");
+            const match = String(text || "").match(expression);
+            if (!match) return "";
+            return match[1].replace(/[*#>-]/g, " ").replace(/\s+/g, " ").trim();
+        }
+
+        function extractBoldValue(text, label) {
+            const expression = new RegExp(`\\*\\*${label}:\\*\\*\\s*([^\\n]+)`, "i");
+            const match = String(text || "").match(expression);
+            return match ? match[1].trim() : "—";
+        }
+
+        async function updateRecipeShowcase(responseText, fallbackQuery) {
+            const response = String(responseText || "");
+            const title = extractMarkdownHeading(response) || createConversationTitle(fallbackQuery) || "Featured dish";
+            const originText = extractSectionText(response, "Origin");
+            const originShort = originText ? originText.split(/[.!]/)[0].slice(0, 55) : "International cuisine";
+
+            recipeName.textContent = title;
+            recipeOrigin.textContent = originText || "A GlobalPlate AI recipe selected for you.";
+            recipeOriginShort.textContent = originShort || "—";
+            recipeTime.textContent = extractBoldValue(response, "Total time");
+            recipeDifficulty.textContent = extractBoldValue(response, "Difficulty");
+            recipeCalories.textContent = extractBoldValue(response, "Calories");
+
+            recipeShowcase.classList.add("visible");
+            recipePhoto.classList.remove("loaded");
+            recipePhotoLoader.classList.remove("hidden");
+            recipePhotoCredit.style.display = "none";
+
+            try {
+                const imageResponse = await fetch(`/api/image?query=${encodeURIComponent(title)}`);
+                if (!imageResponse.ok) throw new Error("Image endpoint failed");
+                const data = await imageResponse.json();
+                if (!data.image_url) throw new Error("No image URL returned");
+
+                recipePhoto.onload = () => {
+                    recipePhoto.classList.add("loaded");
+                    recipePhotoLoader.classList.add("hidden");
+                };
+                recipePhoto.onerror = () => {
+                    recipePhotoLoader.textContent = "Image could not be loaded.";
+                };
+                recipePhoto.src = data.image_url;
+                recipePhoto.alt = `${title} dish`;
+
+                if (data.photographer) {
+                    recipePhotoCredit.textContent = `Photo: ${data.photographer}`;
+                    recipePhotoCredit.href = data.photographer_url || "#";
+                    recipePhotoCredit.style.display = "block";
+                }
+            } catch (error) {
+                console.error("Recipe image error:", error);
+                recipePhotoLoader.textContent = "Dish image unavailable.";
+            }
+        }
+
+        function resetRecipeShowcase() {
+            recipeShowcase.classList.remove("visible");
+            recipePhoto.removeAttribute("src");
+            recipePhoto.classList.remove("loaded");
+            recipePhotoLoader.textContent = "🍽 Finding the best dish photo…";
+            recipePhotoLoader.classList.remove("hidden");
+            recipePhotoCredit.style.display = "none";
+        }
+
+        function getLatestAssistantResponse() {
+            for (let i = conversationHistory.length - 1; i >= 0; i -= 1) {
+                if (conversationHistory[i].role === "assistant") {
+                    return conversationHistory[i].content;
+                }
+            }
+
+            return "";
+        }
+
+        function extractNutritionValue(text, label) {
+            const expression = new RegExp(
+                `\\*\\*${label}:\\*\\*\\s*([^\\n]+)`,
+                "i"
+            );
+
+            const match = String(text || "").match(expression);
+            return match ? match[1].trim() : "—";
+        }
+
+        function updateNutritionCard(responseText) {
+            const text = String(responseText || "");
+
+            if (!/nutrition estimate/i.test(text)) {
+                nutritionCard.classList.remove("visible");
+                return;
+            }
+
+            nutritionCalories.textContent =
+                extractNutritionValue(text, "Calories");
+            nutritionProtein.textContent =
+                extractNutritionValue(text, "Protein");
+            nutritionCarbs.textContent =
+                extractNutritionValue(text, "Carbohydrates");
+            nutritionFat.textContent =
+                extractNutritionValue(text, "Fat");
+
+            nutritionCard.classList.add("visible");
+        }
+
+        function downloadLatestResponse() {
+            const response = getLatestAssistantResponse();
+
+            if (!response) {
+                statusElement.textContent =
+                    "There is no AI response to download yet.";
+                return;
+            }
+
+            const title =
+                activeConversationId
+                    ? savedConversations.find(
+                        (item) => item.id === activeConversationId
+                    )?.title || "GlobalPlate Recipe"
+                    : "GlobalPlate Recipe";
+
+            const content =
+                `${title}\n\nGenerated by GlobalPlate AI\n\n${response}`;
+
+            const blob = new Blob([content], {
+                type: "text/plain;charset=utf-8"
+            });
+
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+
+            link.href = url;
+            link.download =
+                `${title.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}.txt`;
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+
+            statusElement.textContent = "Recipe downloaded.";
+        }
+
+        async function submitMessage(rawMessage) {
+            const userMessage = String(rawMessage || "").trim();
+
+            if (!userMessage) return;
+
+            if (conversationHistory.length === 0) {
+                updateDishImage(userMessage);
+            }
+
+            addMessage(userMessage, "user");
+
+            const historyBeforeMessage = conversationHistory.slice(-12);
+
+            conversationHistory.push({
+                role: "user",
+                content: userMessage
+            });
+
+            const assistantMessage = addMessage("", "assistant");
+            assistantMessage.classList.add("typing-cursor");
+
+            sendButton.disabled = true;
+            voiceButton.disabled = true;
+            messageInput.disabled = true;
+            statusElement.textContent =
+                "👨‍🍳 GlobalPlate AI is preparing your response...";
+
+            try {
+                const response = await fetch("/api/cook", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: userMessage,
+                        history: historyBeforeMessage
+                    })
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "The server returned an error.";
+
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.detail || errorMessage;
+                    } catch {
+                        // Ignore JSON parsing failure.
+                    }
+
+                    throw new Error(errorMessage);
+                }
+
+                if (!response.body) {
+                    throw new Error("Streaming is unavailable in this browser.");
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let completeResponse = "";
+
+                while (true) {
+                    const result = await reader.read();
+
+                    if (result.done) break;
+
+                    completeResponse += decoder.decode(
+                        result.value,
+                        { stream: true }
+                    );
+
+                    assistantMessage.innerHTML =
+                        renderMarkdown(completeResponse);
+
+                    chatArea.scrollTop = chatArea.scrollHeight;
+                }
+
+                completeResponse += decoder.decode();
+
+                if (!completeResponse.trim()) {
+                    completeResponse =
+                        "GlobalPlate AI did not receive a response. Please try again.";
+
+                    assistantMessage.innerHTML =
+                        renderMarkdown(completeResponse);
+                }
+
+                enhanceIngredientChecklist(assistantMessage);
+
+                conversationHistory.push({
+                    role: "assistant",
+                    content: completeResponse
+                });
+
+                updateSavedConversation(userMessage);
+                updateNutritionCard(completeResponse);
+                await updateRecipeShowcase(completeResponse, userMessage);
+
+                statusElement.textContent = "Response completed.";
+            } catch (error) {
+                assistantMessage.textContent =
+                    "Sorry, GlobalPlate AI could not respond.\n\n" +
+                    error.message;
+
+                conversationHistory.pop();
+                statusElement.textContent = "Request failed.";
+                console.error(error);
+            } finally {
+                assistantMessage.classList.remove("typing-cursor");
+                sendButton.disabled = false;
+                voiceButton.disabled = false;
+                messageInput.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        function applyStoredTheme() {
+            const dark =
+                localStorage.getItem(THEME_STORAGE_KEY) === "dark";
+
+            document.body.classList.toggle("dark-mode", dark);
+            themeButton.textContent = dark ? "☀️" : "🌙";
+        }
+
+        function setupVoiceInput() {
+            const SpeechRecognition =
+                window.SpeechRecognition ||
+                window.webkitSpeechRecognition;
+
+            if (!SpeechRecognition) {
+                voiceButton.style.display = "none";
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = "en-IN";
+            recognition.interimResults = false;
+            recognition.continuous = false;
+
+            recognition.addEventListener("start", () => {
+                voiceButton.classList.add("listening");
+                voiceButton.textContent = "⏹";
+                statusElement.textContent = "Listening...";
+            });
+
+            recognition.addEventListener("result", (event) => {
+                const transcript =
+                    event.results[0][0].transcript;
+
+                messageInput.value = transcript;
+                statusElement.textContent = "Voice input captured.";
+                messageInput.focus();
+            });
+
+            recognition.addEventListener("end", () => {
+                voiceButton.classList.remove("listening");
+                voiceButton.textContent = "🎤";
+            });
+
+            recognition.addEventListener("error", () => {
+                statusElement.textContent =
+                    "Voice input could not be captured.";
+            });
+
+            voiceButton.addEventListener("click", () => {
+                recognition.start();
+            });
+        }
+
+        chatForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const value = messageInput.value;
+            messageInput.value = "";
+
+            await submitMessage(value);
         });
+
+        document
+            .querySelectorAll(".suggestion-button")
+            .forEach((button) => {
+                button.addEventListener("click", async () => {
+                    await submitMessage(button.dataset.prompt || "");
+                });
+            });
+
+        newChatButton.addEventListener("click", startNewConversation);
+        mobileNewChatButton.addEventListener("click", startNewConversation);
+        mobileMenuButton.addEventListener("click", openSidebar);
+        sidebarOverlay.addEventListener("click", closeSidebar);
+
+        clearHistoryButton.addEventListener("click", () => {
+            const confirmed = window.confirm(
+                "Clear all saved dishes and conversations?"
+            );
+
+            if (!confirmed) return;
+
+            savedConversations = [];
+            saveConversations();
+            startNewConversation();
+            renderDishList();
+        });
+
+        copyButton.addEventListener("click", async () => {
+            const latestResponse = getLatestAssistantResponse();
+
+            if (!latestResponse) {
+                statusElement.textContent =
+                    "There is no AI response to copy yet.";
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(latestResponse);
+                statusElement.textContent =
+                    "Latest response copied to clipboard.";
+            } catch {
+                statusElement.textContent =
+                    "The response could not be copied.";
+            }
+        });
+
+        downloadButton.addEventListener("click", downloadLatestResponse);
+
+        printButton.addEventListener("click", () => {
+            window.print();
+        });
+
+        themeButton.addEventListener("click", () => {
+            const dark =
+                document.body.classList.toggle("dark-mode");
+
+            localStorage.setItem(
+                THEME_STORAGE_KEY,
+                dark ? "dark" : "light"
+            );
+
+            themeButton.textContent = dark ? "☀️" : "🌙";
+        });
+
+        applyStoredTheme();
+        setupVoiceInput();
+        showWelcomeMessage();
+        renderDishList();
+        messageInput.focus();
     </script>
 </body>
 </html>
