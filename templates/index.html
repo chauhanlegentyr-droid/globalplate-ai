@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlobalPlate // Cultural AI Recipe Guide</title>
+    <script src="https://tailwindcss.com"></script>
+</head>
+<body class="bg-amber-50 min-h-screen flex flex-col font-sans text-slate-800">
+
+    <!-- Header Navbar -->
+    <header class="bg-orange-600 text-white shadow-md p-4">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-tight">🌍 GlobalPlate <span class="text-xs font-normal bg-orange-500 px-2 py-0.5 rounded ml-2">Cultural AI Guide</span></h1>
+            <span class="text-sm text-orange-200">IBM Project</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 flex flex-col justify-between overflow-hidden">
+        <!-- Interactive Recipe View -->
+        <div id="recipe-display" class="flex-1 bg-white rounded-2xl shadow-sm border border-orange-100 p-6 mb-4 overflow-y-auto space-y-4 max-h-[68vh]">
+            <div class="bg-orange-50 text-orange-900 p-4 rounded-xl max-w-[90%] self-start text-sm border-l-4 border-orange-500">
+                <strong>Welcome to GlobalPlate!</strong> Type any dish name (e.g., <em>Tacos al Pastor, Butter Chicken, Sushi, Croissants</em>) or list raw ingredients. I will stream its traditional cultural heritage, cross-metric cooking steps, and culinary secrets in real-time.
+            </div>
+        </div>
+
+        <!-- Input Bar Area -->
+        <div class="bg-white p-3 rounded-xl shadow-sm border border-orange-100 flex gap-2">
+            <input type="text" id="dish-input" placeholder="Enter an international dish or regional cuisine recipe..." 
+                   class="flex-1 px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm">
+            <button id="search-btn" onclick="fetchRecipe()" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium text-sm transition-all whitespace-nowrap shadow-sm">
+                Explore Culinary Culture
+            </button>
+        </div>
+    </main>
+
+    <script>
+        async function fetchRecipe() {
+            const inputField = document.getElementById('dish-input');
+            const recipeDisplay = document.getElementById('recipe-display');
+            const dish = inputField.value.trim();
+            if (!dish) return;
+
+            // Render User Input Block
+            recipeDisplay.innerHTML += `<div class="bg-slate-100 text-slate-800 p-3 rounded-lg max-w-[85%] ml-auto text-sm text-right font-medium">Target: ${dish}</div>`;
+            inputField.value = '';
+            recipeDisplay.scrollTop = recipeDisplay.scrollHeight;
+
+            // Generate Empty Stream Window
+            const streamId = 'stream-' + Date.now();
+            recipeDisplay.innerHTML += `<div id="${streamId}" class="bg-orange-50/50 text-slate-800 p-4 rounded-xl border border-orange-100/50 text-sm whitespace-pre-line leading-relaxed">⏳ Connecting to Global Chef Network...</div>`;
+            recipeDisplay.scrollTop = recipeDisplay.scrollHeight;
+            const streamContainer = document.getElementById(streamId);
+
+            try {
+                const response = await fetch('/api/cook', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: dish })
+                });
+
+                if (!response.body) return;
+                streamContainer.innerText = ''; // Clear initial connecting placeholder
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const parsed = json.parse(line.slice(6));
+                                // Capitalized standard JSON fix for strict browser runtime compliance
+                                } catch(e) {
+                                try {
+                                    const parsedObj = JSON.parse(line.slice(6));
+                                    streamContainer.innerText += parsedObj.text;
+                                    recipeDisplay.scrollTop = recipeDisplay.scrollHeight;
+                                } catch(errInner) {}
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                streamContainer.innerText = "Connection Error: Failed to retrieve cultural recipe data from the server.";
+            }
+        }
+
+        // Catch Enter key inputs
+        document.getElementById('dish-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') fetchRecipe();
+        });
+    </script>
+</body>
+</html>
